@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>率土之滨 · 心愿武将到手时间模拟器 · 星枫丨江渔火</title>
+<meta name="author" content="星枫丨江渔火">
+<style>
+:root{--bg:#f2f5fa;--card:#fff;--line:#e2e8f2;--ink:#1f2d3d;--muted:#6b7a90;--brand:#1f4e79;--brand2:#2e75b6;
+--accent:#c0392b;--ok:#1e8e3e;--warn:#b8860b;--input:#fffbe8;--inputline:#e8d9a0;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+font:14px/1.55 -apple-system,"Segoe UI","Microsoft YaHei",system-ui,sans-serif}
+header{background:linear-gradient(135deg,#1f4e79,#2e75b6);color:#fff;padding:18px 22px;box-shadow:0 2px 8px rgba(16,24,40,.15)}
+header .hd{max-width:1180px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:18px}
+header .hd-main{min-width:0}
+.by{text-align:right;font-size:11px;opacity:.92;line-height:1.7;white-space:nowrap;border-left:1px solid rgba(255,255,255,.35);padding-left:16px}
+.by b{display:block;font-size:15px;letter-spacing:2px}
+@media(max-width:700px){header .hd{flex-direction:column;align-items:flex-start;gap:8px}
+.by{text-align:left;border-left:0;padding-left:0;border-top:1px solid rgba(255,255,255,.3);padding-top:6px;width:100%}}
+footer{max-width:1180px;margin:0 auto;padding:6px 16px 30px;color:var(--muted);font-size:11.5px;text-align:center;line-height:1.8}
+footer b{color:var(--brand)}
+header h1{margin:0;font-size:20px;letter-spacing:.5px}
+header p{margin:4px 0 0;font-size:12px;opacity:.88}
+.wrap{max-width:1180px;margin:0 auto;padding:16px}
+.grid{display:grid;grid-template-columns:390px 1fr;gap:16px;align-items:start}
+@media(max-width:940px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px;
+box-shadow:0 1px 3px rgba(16,24,40,.06)}
+.card h2{margin:0 0 10px;font-size:13px;font-weight:700;color:var(--brand);letter-spacing:.4px;
+border-bottom:1px solid var(--line);padding-bottom:8px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:5px 0}
+.row>span{color:#33465c}
+.hint{font-size:11px;color:var(--muted);margin:-2px 0 8px}
+input[type=number],input[type=date],select{width:126px;padding:6px 8px;border:1px solid var(--inputline);border-radius:7px;
+background:var(--input);font:inherit;font-size:13px;color:#5a4300;text-align:center;font-weight:600}
+select{text-align:left;width:150px}
+input:focus,select:focus{outline:2px solid #cfe0f7;border-color:var(--brand2)}
+input[type=checkbox]{width:17px;height:17px;accent-color:var(--brand2)}
+button{font:inherit;font-weight:700;border:0;border-radius:9px;padding:10px 16px;cursor:pointer}
+.btn-main{width:100%;background:linear-gradient(135deg,#1f4e79,#2e75b6);color:#fff;font-size:15px;
+box-shadow:0 2px 6px rgba(31,78,121,.3)}
+.btn-main:hover{filter:brightness(1.08)}
+.btn-mini{background:#eef3fa;color:var(--brand);padding:6px 12px;font-size:12px;border:1px solid var(--line)}
+.adv{display:none}
+.adv.open{display:flex}
+.big{font-size:46px;font-weight:800;color:var(--brand);line-height:1.05;letter-spacing:-1px}
+.big small{font-size:16px;font-weight:600;color:var(--muted);letter-spacing:0}
+.sub{color:var(--muted);font-size:12px;margin-top:4px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.stat{background:#f7fafd;border:1px solid var(--line);border-radius:9px;padding:8px 10px}
+.stat b{display:block;font-size:17px;color:var(--brand)}
+.stat i{font-style:normal;font-size:11px;color:var(--muted)}
+canvas{width:100%;height:230px;display:block}
+.verdict{margin-top:10px;padding:10px 12px;border-radius:9px;font-weight:700;font-size:13px}
+.v-ok{background:#e8f6ec;color:#15652f;border:1px solid #bfe3c9}
+.v-bad{background:#fdecea;color:#8c2318;border:1px solid #f3c2bb}
+.v-warn{background:#fff8e1;color:#7a5b00;border:1px solid #f0dfa8}
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
+th,td{border-bottom:1px solid var(--line);padding:5px 6px;text-align:center}
+th{color:var(--muted);font-weight:600}
+td:first-child,th:first-child{text-align:left}
+.err{color:var(--accent);font-weight:700;font-size:12.5px;display:none;margin-top:6px}
+.note{font-size:11.5px;color:var(--muted);line-height:1.6;margin-top:8px}
+.k{display:inline-block;background:#eef3fa;border-radius:5px;padding:0 5px;color:var(--brand);font-weight:700}
+.fixed{color:var(--brand);font-weight:800;font-size:15px}
+</style>
+</head>
+<body>
+<header>
+  <div class="hd">
+    <div class="hd-main">
+      <h1>率土之滨 · 心愿武将到手时间模拟器</h1>
+      <p>名将卡包 30 发保底 · 攒满 24000 心愿积分 · 按 5% / 30% / 65% 逐抽掷点，蒙特卡洛模拟到手要多少天 · 不考虑阵营与指定武将概率提升（理想时间）</p>
+    </div>
+    <div class="by">作者<b>星枫丨江渔火</b></div>
+  </div>
+</header>
+<noscript>
+  <div style="max-width:1180px;margin:14px auto 0;padding:14px 16px;background:#fdecea;border:1px solid #f3c2bb;
+  border-radius:10px;color:#8c2318;font-size:13px;line-height:1.8">
+    <b>⚠ 页面没有跑起来，说明脚本被拦住了。</b><br>
+    两种情况：① 你可能是<strong>把文件当文本打开了</strong>（看到的是源码）；② 你的浏览器<strong>禁止了本地网页的脚本</strong>。<br>
+    解决办法：用 <b>Chrome / Edge / 火狐 / 夸克</b> 打开这个 html 文件；手机上先用文件管理器长按文件 →「打开方式」→ 选浏览器。
+  </div>
+</noscript>
+<div class="wrap"><div class="grid">
+
+<div>
+  <div class="card">
+    <h2>一、当前状态</h2>
+    <div class="row"><span>当前心愿积分</span><input type="number" id="pts" value="0" min="0" step="10"></div>
+    <div class="row"><span>心愿积分上限</span><b class="fixed">24000 分</b></div>
+    <div class="row"><span>距离 5 星保底还有</span><input type="number" id="pity5" value="30" min="0" max="30" step="1"></div>
+    <div class="row"><span>距离 4-5 星保底还有</span><input type="number" id="pity45" value="5" min="0" step="1"></div>
+    <div class="row"><span>今天已经抽了</span><input type="number" id="todayDone" value="0" min="0" step="1"></div>
+    <div class="row"><span>以后每天抽</span><input type="number" id="perDay" value="4" min="0" step="1"></div>
+    <div class="hint">单位：抽 / 次。「今天已经抽了」用来判断今天还剩几次。</div>
+  </div>
+
+  <div class="card">
+    <h2>二、心愿额外积分活动</h2>
+    <div class="row"><span>参与活动</span><input type="checkbox" id="eventOn" checked></div>
+    <div class="row"><span>每次额外加积分</span><input type="number" id="eventBonus" value="35" min="0" step="1"></div>
+    <div class="row"><span>每日最多加几次</span><input type="number" id="eventMax" value="4" min="0" step="1"></div>
+    <div class="row"><span>活动截止日期</span><input type="date" id="deadline" value="2026-11-04"></div>
+    <div class="hint">活动只对每天的前 N 次生效（含免费和半价），超出部分没有额外积分。</div>
+  </div>
+
+  <div class="card" id="probCard">
+    <h2>三、概率与积分（默认已按你说的填好）</h2>
+    <div class="row"><span>五星概率</span><input type="number" id="p5" value="5" min="0" max="100" step="0.1"></div>
+    <div class="row"><span>四星概率</span><input type="number" id="p4" value="30" min="0" max="100" step="0.1"></div>
+    <div class="row"><span>三星概率</span><input type="number" id="p3" value="65" min="0" max="100" step="0.1" readonly style="opacity:.6"></div>
+    <div class="row"><span>三星给积分</span><input type="number" id="v3" value="10" min="0" step="1"></div>
+    <div class="row"><span>四星给积分</span><input type="number" id="v4" value="20" min="0" step="1"></div>
+    <div class="row"><span>五星给积分</span><input type="number" id="v5" value="150" min="0" step="1"></div>
+    <div class="row"><span>5 星保底周期</span><input type="number" id="cycle5" value="30" min="1" step="1"></div>
+    <div class="row"><span>4-5 星保底周期</span><input type="number" id="cycle45" value="5" min="1" step="1"></div>
+    <div class="hint">名将卡包保底固定 30 发（计数器每次出货后重置回 30）。出 5 星会同时重置两个保底计数器。</div>
+  </div>
+
+  <div class="card">
+    <div class="row"><span>模拟次数</span><input type="number" id="runs" value="20000" min="1000" max="200000" step="1000"></div>
+    <button class="btn-main" id="go">开始模拟</button>
+    <div class="err" id="err"></div>
+    <div style="text-align:center;margin-top:8px">
+      <button class="btn-mini" id="reset">恢复默认值</button>
+      <button class="btn-mini" id="advBtn">收起概率设置</button>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="card">
+    <h2>模拟结果</h2>
+    <div class="big"><span id="bigDays">—</span> <small>天后到手</small></div>
+    <div class="sub" id="bigDate">—</div>
+    <div class="verdict v-warn" id="verdict">等待模拟…</div>
+    <div class="stats">
+      <div class="stat"><i>平均（期望）</i><b id="sMean">—</b></div>
+      <div class="stat"><i>80% 把握内</i><b id="s80">—</b></div>
+      <div class="stat"><i>90% 把握内</i><b id="s90">—</b></div>
+      <div class="stat"><i>最快（1%）</i><b id="sMin">—</b></div>
+      <div class="stat"><i>最坏（99%）</i><b id="sMax">—</b></div>
+      <div class="stat"><i>平均需要抽数</i><b id="sDraws">—</b></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>天数分布（柱子 = 概率，折线 = 累计概率）</h2>
+    <canvas id="chart"></canvas>
+    <div class="note" id="chartNote"></div>
+  </div>
+
+  <div class="card">
+    <h2>关键时间点</h2>
+    <table id="tbl"><thead><tr><th>把握</th><th>天数</th><th>到手日期</th></tr></thead><tbody></tbody></table>
+    <div class="note" id="detail"></div>
+  </div>
+</div>
+
+</div></div>
+
+<footer>本模拟器由 <b>星枫丨江渔火</b> 制作 · 结果仅供资源规划参考，实际以游戏内公示为准</footer>
+
+<script>
+/* ==SIM-CORE-START== */
+function mulberry32(a){
+  return function(){
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    var t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+function simulateOnce(p, rnd){
+  if (p.cap <= 0) return null;
+  if (p.pts >= p.cap) return { days: 0, draws: 0 };
+  if (p.perDay <= 0) return null;
+  var pts = p.pts;
+  var c5 = Math.max(1, Math.round(p.pity5));
+  var c45 = Math.max(1, Math.round(p.pity45));
+  var day = 0, draws = 0;
+  var dayDraw = Math.max(0, Math.round(p.todayDone));
+  var todayLeft = p.perDay - dayDraw;
+  if (todayLeft <= 0) { day = 1; dayDraw = 0; todayLeft = p.perDay; }
+  var p4lim = p.p5 + p.p4;
+  var MAXD = 2000000;
+  while (pts < p.cap) {
+    if (todayLeft <= 0) { day++; dayDraw = 0; todayLeft = p.perDay; }
+    if (++draws > MAXD) return null;
+    var r = rnd(), rar;
+    if (r < p.p5) rar = 5; else if (r < p4lim) rar = 4; else rar = 3;
+    if (c5 <= 1) rar = 5;
+    else if (c45 <= 1 && rar < 4) rar = 4;
+    if (rar === 5) { c5 = p.cycle5; c45 = p.cycle45; }
+    else if (rar === 4) { c5 = Math.max(1, c5 - 1); c45 = p.cycle45; }
+    else { c5 = Math.max(1, c5 - 1); c45 = Math.max(1, c45 - 1); }
+    pts += (rar === 5 ? p.v5 : (rar === 4 ? p.v4 : p.v3));
+    if (p.eventOn && p.eventBonus > 0 && dayDraw < p.eventMax && day <= p.deadlineOffset) pts += p.eventBonus;
+    dayDraw++; todayLeft--;
+  }
+  return { days: day, draws: draws };
+}
+function runSimulation(p, n, seed){
+  var rnd = mulberry32(seed === undefined ? 20261004 : seed);
+  var days = new Float64Array(n), draws = new Float64Array(n);
+  var fails = 0;
+  for (var i = 0; i < n; i++){
+    var r = simulateOnce(p, rnd);
+    if (r === null) { fails++; days[i] = NaN; draws[i] = NaN; }
+    else { days[i] = r.days; draws[i] = r.draws; }
+  }
+  return { days: days, draws: draws, fails: fails, n: n };
+}
+function summarize(sim){
+  var d = [], dr = [], i;
+  for (i = 0; i < sim.n; i++){ if (!isNaN(sim.days[i])) { d.push(sim.days[i]); dr.push(sim.draws[i]); } }
+  d.sort(function(a,b){return a-b;});
+  dr.sort(function(a,b){return a-b;});
+  function q(arr, p){
+    if (!arr.length) return NaN;
+    var idx = (arr.length - 1) * p, lo = Math.floor(idx), hi = Math.ceil(idx);
+    return lo === hi ? arr[lo] : arr[lo] + (arr[hi]-arr[lo]) * (idx-lo);
+  }
+  var sum = 0; for (i = 0; i < d.length; i++) sum += d[i];
+  var sumD = 0; for (i = 0; i < dr.length; i++) sumD += dr[i];
+  return {
+    n: d.length, mean: d.length ? sum/d.length : NaN, meanDraws: dr.length ? sumD/dr.length : NaN,
+    p01: q(d,0.01), p10: q(d,0.10), p50: q(d,0.50), p80: q(d,0.80), p90: q(d,0.90), p99: q(d,0.99),
+    min: d[0], max: d[d.length-1], days: d, q: q
+  };
+}
+function cdfAt(sortedDays, x){
+  if (!sortedDays.length) return NaN;
+  var lo = 0, hi = sortedDays.length;
+  while (lo < hi){ var m = (lo+hi)>>1; if (sortedDays[m] <= x) lo = m+1; else hi = m; }
+  return lo / sortedDays.length;
+}
+/* ==SIM-CORE-END== */
+</script>
+
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var CAP = 24000;
+  var DEFAULTS = {pts:0,pity5:30,pity45:5,todayDone:0,perDay:4,
+    eventOn:true,eventBonus:35,eventMax:4,deadline:"2026-11-04",
+    p5:5,p4:30,v3:10,v4:20,v5:150,cycle5:30,cycle45:5,runs:20000};
+  var last = null;
+
+  function today0(){ var d = new Date(); d.setHours(0,0,0,0); return d; }
+  function parseDate(s){ var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s||""); if(!m) return null;
+    var d = new Date(+m[1], +m[2]-1, +m[3]); d.setHours(0,0,0,0); return d; }
+  function fmt(d){ var p = function(x){ return (x<10?"0":"")+x; };
+    return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate()); }
+  function addDays(d,n){ var x = new Date(d.getTime()); x.setDate(x.getDate()+n); return x; }
+  function num(id){ var v = parseFloat($(id).value); return isNaN(v) ? 0 : v; }
+
+  function readParams(){
+    var dl = parseDate($("deadline").value);
+    var t0 = today0();
+    var off = dl ? Math.round((dl.getTime() - t0.getTime())/86400000) : 999999;
+    return {
+      pts: num("pts"), cap: CAP,
+      pity5: num("pity5"), pity45: num("pity45"),
+      todayDone: num("todayDone"), perDay: num("perDay"),
+      eventOn: $("eventOn").checked, eventBonus: num("eventBonus"), eventMax: num("eventMax"),
+      deadlineOffset: off, deadlineDate: dl,
+      p5: num("p5")/100, p4: num("p4")/100, p3: num("p3")/100,
+      v3: num("v3"), v4: num("v4"), v5: num("v5"),
+      cycle5: Math.max(1, Math.round(num("cycle5"))), cycle45: Math.max(1, Math.round(num("cycle45"))),
+      runs: Math.max(1000, Math.min(200000, Math.round(num("runs"))))
+    };
+  }
+  function validate(p){
+    if (!(p.cap > 0)) return "请填写心愿积分上限。";
+    if (p.pts < 0) return "当前积分不能为负。";
+    if (!(p.perDay > 0)) return "「以后每天抽几次」必须大于 0，否则永远攒不满。";
+    if (p.p5 + p.p4 > 1.0000001) return "五星概率 + 四星概率不能超过 100%。";
+    if (!p.deadlineDate) return "请填写活动截止日期。";
+    return null;
+  }
+
+  function expectedPerDraw(p){ return p.p5*p.v5 + p.p4*p.v4 + (1-p.p5-p.p4)*p.v3; }
+
+  function draw(canvas, res, p){
+    var dpr = window.devicePixelRatio || 1;
+    var W = canvas.clientWidth, H = canvas.clientHeight;
+    canvas.width = W*dpr; canvas.height = H*dpr;
+    var g = canvas.getContext("2d"); g.setTransform(dpr,0,0,dpr,0,0);
+    g.clearRect(0,0,W,H);
+    var days = res.days;
+    if (!days.length) return;
+    var L = 46, R = 14, T = 14, B = 30;
+    var lo = days[0], hi = days[days.length-1];
+    if (hi === lo) hi = lo + 1;
+    var nb = Math.min(46, Math.max(12, Math.round(Math.sqrt(days.length/60))));
+    var bw = (hi-lo)/nb;
+    var bins = new Array(nb).fill(0);
+    for (var i = 0; i < days.length; i++){
+      var k = Math.min(nb-1, Math.floor((days[i]-lo)/bw)); bins[k]++;
+    }
+    var maxBin = Math.max.apply(null, bins);
+    var plotW = W-L-R, plotH = H-T-B;
+    // grid
+    g.strokeStyle = "#e2e8f2"; g.lineWidth = 1;
+    g.font = "11px -apple-system,Segoe UI,Microsoft YaHei,sans-serif";
+    g.fillStyle = "#6b7a90"; g.textAlign = "right"; g.textBaseline = "middle";
+    for (var t = 0; t <= 4; t++){
+      var yy = T + plotH - plotH*t/4;
+      g.beginPath(); g.moveTo(L, yy); g.lineTo(L+plotW, yy); g.stroke();
+      g.fillText(Math.round(maxBin*t/4), L-6, yy);
+    }
+    // bars
+    for (var b = 0; b < nb; b++){
+      var h = plotH * bins[b] / maxBin;
+      var x = L + plotW*b/nb;
+      g.fillStyle = "#9fc4e8";
+      g.fillRect(x+1, T+plotH-h, Math.max(1, plotW/nb-2), h);
+    }
+    // cumulative line
+    var cum = 0, pts2 = [];
+    for (var b2 = 0; b2 < nb; b2++){
+      cum += bins[b2];
+      pts2.push([L + plotW*(b2+0.5)/nb, T + plotH - plotH*(cum/days.length)]);
+    }
+    g.strokeStyle = "#1f4e79"; g.lineWidth = 2; g.beginPath();
+    for (var j = 0; j < pts2.length; j++){ j ? g.lineTo(pts2[j][0], pts2[j][1]) : g.moveTo(pts2[j][0], pts2[j][1]); }
+    g.stroke();
+    // deadline marker
+    if (p.deadlineOffset >= lo && p.deadlineOffset <= hi){
+      var dx = L + plotW*(p.deadlineOffset-lo)/(hi-lo);
+      g.strokeStyle = "#c0392b"; g.setLineDash([5,4]); g.lineWidth = 1.5;
+      g.beginPath(); g.moveTo(dx, T); g.lineTo(dx, T+plotH); g.stroke(); g.setLineDash([]);
+      g.fillStyle = "#c0392b"; g.textAlign = "center"; g.textBaseline = "top";
+      g.fillText("活动截止", dx, T+2);
+    }
+    // x axis
+    g.fillStyle = "#6b7a90"; g.textAlign = "center"; g.textBaseline = "top";
+    for (var x2 = 0; x2 <= 6; x2++){
+      var v = lo + (hi-lo)*x2/6;
+      g.fillText(Math.round(v), L + plotW*x2/6, T+plotH+6);
+    }
+    g.textAlign = "right"; g.fillText("天", L+plotW, T+plotH+19);
+    g.textAlign = "left"; g.fillText("次数", 4, T-4);
+  }
+
+  function render(p, sim, sum){
+    var t0 = today0();
+    var med = Math.round(sum.p50);
+    $("bigDays").textContent = med;
+    $("bigDate").textContent = "中位数：" + fmt(addDays(t0, med)) + "（约第 " + med + " 天）";
+    $("sMean").textContent = Math.round(sum.mean) + " 天";
+    $("s80").textContent = Math.round(sum.p80) + " 天";
+    $("s90").textContent = Math.round(sum.p90) + " 天";
+    $("sMin").textContent = Math.round(sum.p01) + " 天";
+    $("sMax").textContent = Math.round(sum.p99) + " 天";
+    $("sDraws").textContent = Math.round(sum.meanDraws) + " 抽";
+
+    // 截止日
+    var v = $("verdict");
+    if (p.pts >= p.cap){
+      v.className = "verdict v-ok";
+      v.textContent = "🎉 心愿积分已经攒满，下一次招募必出心愿武将！";
+    } else if (p.deadlineOffset < 0){
+      var pr0 = 0;
+      v.className = "verdict v-warn";
+      v.textContent = "活动已结束（" + fmt(p.deadlineDate) + "）。没有额外积分后仍然能攒满，只是会慢一些；下表是纯粹的自然进度。";
+    } else {
+      var pr = cdfAt(sum.days, p.deadlineOffset);
+      var pct = (pr*100);
+      if (pct >= 99.5){ v.className = "verdict v-ok"; }
+      else if (pct >= 50){ v.className = "verdict v-warn"; }
+      else { v.className = "verdict v-bad"; }
+      v.textContent = "在活动截止（" + fmt(p.deadlineDate) + "，还剩 " + p.deadlineOffset +
+        " 天）之前攒满的概率：" + pct.toFixed(1) + "%";
+    }
+
+    var tb = $("tbl").querySelector("tbody");
+    tb.innerHTML = "";
+    var rows = [
+      ["最快（1% 的人）", sum.p01], ["比较顺（10%）", sum.p10], ["一般情况（50%）", sum.p50],
+      ["80% 把握", sum.p80], ["90% 把握", sum.p90], ["最坏（99%）", sum.p99], ["模拟中最慢", sum.max]
+    ];
+    for (var i = 0; i < rows.length; i++){
+      var tr = document.createElement("tr");
+      var dd = Math.round(rows[i][1]);
+      tr.innerHTML = "<td>" + rows[i][0] + "</td><td><b>" + dd + "</b> 天</td><td>" + fmt(addDays(t0, dd)) + "</td>";
+      tb.appendChild(tr);
+    }
+
+    var ep = expectedPerDraw(p);
+    var perDayExp = p.perDay * ep + (p.eventOn ? Math.min(p.perDay, p.eventMax) * p.eventBonus : 0);
+    $("detail").innerHTML =
+      "期望每抽得分 <span class='k'>" + ep.toFixed(2) + "</span> 分（5%×150 + 30%×20 + 65%×10）。" +
+      "活动期内每天期望得分 <span class='k'>" + perDayExp.toFixed(0) + "</span> 分" +
+      "（含前 " + (p.eventOn ? Math.min(p.perDay, p.eventMax) : 0) + " 次 ×" + (p.eventOn ? p.eventBonus : 0) + " 活动加分）。" +
+      "还差 <span class='k'>" + Math.max(0, p.cap - p.pts) + "</span> 分。" +
+      "模拟 " + p.runs.toLocaleString() + " 次" + (sim.fails ? "（" + sim.fails + " 次未跑完已忽略）" : "") + "。";
+
+    $("chartNote").textContent = "横轴 = 需要的天数，纵轴 = 落在该区间的模拟次数；折线是从左往右的累计概率。" +
+      (p.deadlineOffset >= 0 ? " 红色虚线是活动截止日。" : "");
+  }
+
+  function run(){
+    var p = readParams();
+    var e = validate(p);
+    if (e){ $("err").style.display = "block"; $("err").textContent = "⚠ " + e; return; }
+    $("err").style.display = "none";
+    var sim = runSimulation(p, p.runs, 20261004);
+    var sum = summarize(sim);
+    if (!sum.n){ $("err").style.display = "block"; $("err").textContent = "⚠ 模拟没有产生有效结果，请检查输入。"; return; }
+    last = {p:p, sim:sim, sum:sum};
+    render(p, sim, sum);
+    draw($("chart"), sum, p);
+  }
+
+  // 事件绑定
+  var ids = ["pts","pity5","pity45","todayDone","perDay","eventOn","eventBonus",
+             "eventMax","deadline","p5","p4","v3","v4","v5","cycle5","cycle45","runs"];
+  var timer = null;
+  function schedule(){ if (timer) clearTimeout(timer); timer = setTimeout(run, 180); }
+  ids.forEach(function(id){
+    var el = $(id);
+    el.addEventListener("input", function(){
+      if (id === "p5" || id === "p4"){
+        var a = num("p5"), b = num("p4");
+        $("p3").value = Math.max(0, Math.round((100-a-b)*10)/10);
+      }
+      schedule();
+    });
+    el.addEventListener("change", schedule);
+  });
+  window.addEventListener("resize", function(){ if (last) draw($("chart"), last.sum, last.p); });
+  $("go").addEventListener("click", run);
+  $("advBtn").addEventListener("click", function(){
+    var c = $("probCard");
+    var willHide = c.style.display !== "none";
+    c.style.display = willHide ? "none" : "";
+    this.textContent = willHide ? "显示概率设置" : "收起概率设置";
+  });
+  $("reset").addEventListener("click", function(){
+    for (var k in DEFAULTS){ if ($(k)) { if ($(k).type === "checkbox") $(k).checked = DEFAULTS[k]; else $(k).value = DEFAULTS[k]; } }
+    $("p3").value = 65;
+    run();
+  });
+  run();
+})();
+</script>
+</body>
+</html>
